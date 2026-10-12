@@ -1,0 +1,2393 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Spotify 2024 Wrapped - Agra & Anggun Edition</title>
+
+    <!-- Google Fonts: Montserrat & Circular Std lookalike -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <!-- Lottie Web CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
+    <style>
+      /* =============================================================
+       1. SPOTIFY WRAPPED TOKENS & RESET
+    ============================================================= */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      :root {
+        --sp-black: #121212;
+        --sp-card-bg: #181818;
+        --sp-green: #1db954;
+        --sp-neon-green: #1ed760;
+        --sp-pink: #f037a5;
+        --sp-orange: #ff4632;
+        --sp-yellow: #cdf564;
+        --sp-purple: #8c1eff;
+        --sp-blue: #2e77d0;
+        --sp-cream: #faf7f2;
+        --sp-dark-slate: #0d1117;
+        --font-main:
+          "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #000000;
+        font-family: var(--font-main);
+        color: #ffffff;
+        touch-action: manipulation;
+      }
+
+      /* Container HP Mobile-Only */
+      .app-viewport {
+        position: relative;
+        width: 100%;
+        max-width: 440px;
+        height: 100%;
+        margin: 0 auto;
+        overflow: hidden;
+        background: #000000;
+        box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* =============================================================
+       2. SPOTIFY TOP BAR & STORY PROGRESS INDICATORS
+    ============================================================= */
+      .spotify-story-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        visibility: hidden;
+        opacity: 0;
+        padding: 12px 14px 10px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.65) 0%,
+          rgba(0, 0, 0, 0.2) 65%,
+          transparent 100%
+        );
+        pointer-events: none;
+        transition:
+          opacity 0.35s ease,
+          visibility 0.35s ease;
+      }
+      .spotify-story-header.is-visible {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      /* Story Bars (Instagram/Spotify Style) */
+      .story-progress-wrapper {
+        display: flex;
+        gap: 4px;
+        width: 100%;
+        height: 3px;
+      }
+      .story-progress-item {
+        flex: 1;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.28);
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+      }
+      .story-progress-fill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0%;
+        background: #ffffff;
+        border-radius: 2px;
+        transition: width 0.2s linear;
+      }
+      .story-progress-item.completed .story-progress-fill {
+        width: 100%;
+      }
+      .story-progress-item.active .story-progress-fill {
+        width: 100%;
+      }
+
+      /* Header Brand Row */
+      .spotify-brand-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        pointer-events: auto;
+      }
+      .spotify-brand-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .spotify-icon-svg {
+        width: 22px;
+        height: 22px;
+        fill: var(--sp-green);
+      }
+      .spotify-brand-text {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .spotify-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sp-audio-pill {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition:
+          transform 0.15s ease,
+          background 0.2s;
+      }
+      .sp-audio-pill:active {
+        transform: scale(0.92);
+      }
+      .sp-audio-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 10px;
+      }
+      .sp-audio-bar {
+        width: 2px;
+        background: var(--sp-green);
+        border-radius: 1px;
+        animation: musicBarBounce 0.8s ease-in-out infinite alternate;
+      }
+      .sp-audio-bar:nth-child(1) {
+        height: 40%;
+        animation-delay: 0.1s;
+      }
+      .sp-audio-bar:nth-child(2) {
+        height: 95%;
+        animation-delay: 0.3s;
+      }
+      .sp-audio-bar:nth-child(3) {
+        height: 60%;
+        animation-delay: 0.2s;
+      }
+      .sp-audio-bars.paused .sp-audio-bar {
+        animation: none;
+        height: 25%;
+        background: #888;
+      }
+
+      /* =============================================================
+       3. AMBIENT GLOWING ORBS & BACKGROUND PATTERNS
+    ============================================================= */
+      .ambient-glow-container {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 1;
+      }
+      .glowing-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(75px);
+        opacity: 0.7;
+        mix-blend-mode: screen;
+        pointer-events: none;
+        transition: background 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .orb-1 {
+        width: 280px;
+        height: 280px;
+        top: -50px;
+        right: -60px;
+        background: radial-gradient(
+          circle,
+          rgba(240, 55, 165, 0.85),
+          transparent 70%
+        );
+        animation: floatOrbOne 14s ease-in-out infinite alternate;
+      }
+      .orb-2 {
+        width: 310px;
+        height: 310px;
+        bottom: -70px;
+        left: -70px;
+        background: radial-gradient(
+          circle,
+          rgba(29, 185, 84, 0.85),
+          transparent 70%
+        );
+        animation: floatOrbTwo 16s ease-in-out infinite alternate;
+      }
+      .orb-3 {
+        width: 230px;
+        height: 230px;
+        top: 42%;
+        left: 18%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 70, 50, 0.75),
+          transparent 70%
+        );
+        animation: floatOrbThree 12s ease-in-out infinite alternate;
+      }
+
+      /* Retro Spotify Halftone/Noise Texture Overlay */
+      .noise-overlay {
+        position: absolute;
+        inset: 0;
+        opacity: 0.04;
+        pointer-events: none;
+        z-index: 2;
+        background-image: radial-gradient(#fff 1px, transparent 1px);
+        background-size: 16px 16px;
+      }
+
+      /* =============================================================
+       4. KEYFRAME ANIMATIONS
+    ============================================================= */
+      @keyframes floatOrbOne {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(-50px, 70px) scale(1.15);
+        }
+        100% {
+          transform: translate(40px, 130px) scale(0.9);
+        }
+      }
+      @keyframes floatOrbTwo {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(60px, -60px) scale(1.2);
+        }
+        100% {
+          transform: translate(-40px, -100px) scale(0.95);
+        }
+      }
+      @keyframes floatOrbThree {
+        0% {
+          transform: translate(0, 0) scale(0.9);
+        }
+        50% {
+          transform: translate(-60px, -50px) scale(1.1);
+        }
+        100% {
+          transform: translate(50px, 40px) scale(1);
+        }
+      }
+      @keyframes musicBarBounce {
+        0% {
+          height: 20%;
+        }
+        100% {
+          height: 100%;
+        }
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(32px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes slideInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-35px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      @keyframes popPhoto {
+        0% {
+          opacity: 0;
+          transform: scale(0.75) rotate(-6deg);
+        }
+        70% {
+          transform: scale(1.04) rotate(2deg);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0deg);
+        }
+      }
+      @keyframes shakeError {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20%,
+        60% {
+          transform: translateX(-10px);
+        }
+        40%,
+        80% {
+          transform: translateX(10px);
+        }
+      }
+      @keyframes pulseHeart {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.12);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes spinLoader {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes bouncePlayBtn {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.08);
+          box-shadow: 0 0 40px rgba(29, 185, 84, 0.85);
+        }
+      }
+      @keyframes marqueeScroll {
+        0% {
+          transform: translateX(0%);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* =============================================================
+       5. PHASE CONTAINERS & OVERLAYS
+    ============================================================= */
+      .phase-layer {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+        transition:
+          opacity 0.5s ease,
+          visibility 0.5s;
+      }
+      .phase-layer.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      /* -------------------------------------------------------------
+       FASE 1: QUIZ / GATEKEEPER OVERLAY (Blackout Spotify)
+    ------------------------------------------------------------- */
+      #phase-quiz {
+        background: #000000;
+        z-index: 50;
+        text-align: center;
+      }
+      .spotify-quiz-card {
+        width: 100%;
+        max-width: 360px;
+        background: #181818;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 20px;
+        padding: 28px 22px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+        animation: fadeIn 0.4s ease-out;
+        position: relative;
+      }
+      .quiz-spotify-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        background: rgba(29, 185, 84, 0.18);
+        border: 1px solid var(--sp-green);
+        border-radius: 16px;
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--sp-green);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 16px;
+      }
+      .quiz-question-title {
+        font-size: 20px;
+        font-weight: 900;
+        line-height: 1.3;
+        margin-bottom: 24px;
+        color: #ffffff;
+        letter-spacing: -0.3px;
+      }
+      .quiz-options-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .quiz-btn {
+        width: 100%;
+        padding: 16px 18px;
+        background: #242424;
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #ffffff;
+        font-family: var(--font-main);
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition:
+          background 0.2s,
+          border-color 0.2s,
+          transform 0.15s;
+      }
+      .quiz-btn:active {
+        transform: scale(0.98);
+        background: #2a2a2a;
+      }
+      .quiz-btn.correct {
+        background: var(--sp-green) !important;
+        border-color: var(--sp-green) !important;
+        color: #000000 !important;
+        font-weight: 900;
+      }
+      .quiz-btn.wrong {
+        background: #e91429 !important;
+        border-color: #e91429 !important;
+        color: #ffffff !important;
+        animation: shakeError 0.5s ease-in-out;
+      }
+      .quiz-feedback-text {
+        min-height: 22px;
+        margin-top: 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #ff6b7d;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .quiz-feedback-text.visible {
+        opacity: 1;
+      }
+
+      /* -------------------------------------------------------------
+       FASE 2: INTERAKSI BUKA KADO
+    ------------------------------------------------------------- */
+      #phase-gift {
+        background: radial-gradient(circle at center, #1b0c2a 0%, #000000 100%);
+        z-index: 40;
+        text-align: center;
+      }
+      .gift-wrap-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: slideUp 0.6s ease-out;
+      }
+      .gift-badge {
+        color: var(--sp-yellow);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .gift-title {
+        font-size: 26px;
+        font-weight: 900;
+        margin-bottom: 30px;
+        letter-spacing: -0.5px;
+      }
+      .gift-play-button {
+        width: 115px;
+        height: 115px;
+        border-radius: 50%;
+        background: var(--sp-green);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 0 30px rgba(29, 185, 84, 0.6);
+        animation: bouncePlayBtn 2s infinite ease-in-out;
+        transition: transform 0.2s;
+      }
+      .gift-play-button svg {
+        width: 46px;
+        height: 46px;
+        fill: #000000;
+        margin-left: 6px;
+      }
+      .gift-play-button:active {
+        transform: scale(0.92);
+      }
+      .gift-subtext {
+        margin-top: 25px;
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        letter-spacing: 0.5px;
+      }
+
+      /* -------------------------------------------------------------
+       FASE 3: LOADING SCREEN
+    ------------------------------------------------------------- */
+      #phase-loading {
+        background: #000000;
+        z-index: 35;
+        text-align: center;
+      }
+      .loader-circle {
+        width: 60px;
+        height: 60px;
+        border: 5px solid rgba(255, 255, 255, 0.15);
+        border-top-color: var(--sp-green);
+        border-radius: 50%;
+        animation: spinLoader 0.85s cubic-bezier(0.68, -0.55, 0.27, 1.55)
+          infinite;
+        margin-bottom: 22px;
+      }
+      .loading-title {
+        font-size: 17px;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        margin-bottom: 8px;
+        color: #fff;
+        text-transform: uppercase;
+      }
+      .loading-status-text {
+        font-size: 12px;
+        font-weight: 500;
+        color: #999;
+        min-height: 18px;
+      }
+
+      /* =============================================================
+       FASE 4: MAIN WRAPPED CONTENT
+    ============================================================= */
+      #phase-wrapped {
+        z-index: 20;
+        padding: 0;
+        justify-content: stretch;
+        align-items: stretch;
+        background-color: rgba(18, 18, 18, 0.45);
+        background-image:
+          linear-gradient(rgba(0, 0, 0, 0.56), rgba(0, 0, 0, 0.56)),
+          url("image/photo1.jpg");
+        background-position: center;
+        background-size: cover;
+        transition: background-color 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      /* Tap Navigation Zones */
+      .tap-nav-zone {
+        position: absolute;
+        top: 60px;
+        bottom: 60px;
+        width: 36%;
+        z-index: 80;
+        cursor: pointer;
+      }
+      .tap-left {
+        left: 0;
+      }
+      .tap-right {
+        right: 0;
+        width: 64%;
+      }
+
+      /* Slides Viewport */
+      .slides-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+      }
+
+      .story-slide {
+        position: absolute;
+        inset: 0;
+        padding: 68px 24px 62px 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        opacity: 0;
+        pointer-events: none;
+        transform: scale(0.96);
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s ease;
+        z-index: 1;
+      }
+      .story-slide.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: scale(1);
+        z-index: 2;
+      }
+
+      /* Spotify Wrapped Header Typography */
+      .slide-meta-header {
+        animation: fadeIn 0.6s ease;
+        z-index: 10;
+      }
+      .intro-slide .slide-meta-header {
+        position: absolute;
+        top: 50%;
+        right: 24px;
+        left: 24px;
+        transform: translateY(-50%);
+        text-align: left;
+      }
+      .wrapped-category-tag {
+        display: inline-block;
+        font-size: 10.5px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 5px 12px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+      }
+      .slide-headline {
+        font-size: 32px;
+        font-weight: 900;
+        line-height: 1.08;
+        letter-spacing: -1px;
+        text-transform: uppercase;
+        animation: slideInLeft 0.5s ease;
+      }
+      .category-transition-slide {
+        justify-content: center;
+        text-align: center;
+      }
+      .category-transition-slide .slide-meta-header {
+        width: 100%;
+      }
+      .category-transition-copy {
+        font-size: 26px;
+        line-height: 1.3;
+        font-weight: 800;
+        text-transform: none;
+      }
+
+      /* Slide Center Body */
+      .slide-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin: 10px 0;
+        position: relative;
+        z-index: 10;
+      }
+
+      /* Slide Footer Caption */
+      .slide-footer-note {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        opacity: 0.85;
+        letter-spacing: 0.3px;
+        line-height: 1.4;
+        animation: fadeIn 0.8s ease;
+        z-index: 10;
+      }
+
+      /* =============================================================
+       6. DETAIL TAMPILAN PERSIS SPOTIFY WRAPPED PER SLIDE
+    ============================================================= */
+
+      /* Slide 1: Audio Aura & Vinyl Album */
+      .wrapped-album-card {
+        width: 210px;
+        height: 210px;
+        border-radius: 12px;
+        background: #181818;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 14px;
+        animation: popPhoto 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .wrapped-album-bg {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          #f037a5 0%,
+          #ff4632 50%,
+          #cdf564 100%
+        );
+        opacity: 0.9;
+      }
+      .wrapped-album-inner {
+        position: relative;
+        z-index: 2;
+      }
+      .wrapped-album-title {
+        font-size: 18px;
+        font-weight: 900;
+        line-height: 1.15;
+        color: #000;
+        text-transform: uppercase;
+      }
+      .wrapped-album-sub {
+        font-size: 11px;
+        font-weight: 800;
+        color: rgba(0, 0, 0, 0.7);
+        margin-top: 4px;
+      }
+      .sound-wave-graphic {
+        display: flex;
+        gap: 3px;
+        align-items: center;
+        height: 28px;
+        margin-top: 14px;
+      }
+      .sound-wave-bar {
+        width: 4px;
+        background: #ffffff;
+        border-radius: 4px;
+        animation: musicBarBounce 0.9s ease-in-out infinite alternate;
+      }
+      .sound-wave-bar:nth-child(1) {
+        height: 30%;
+        animation-delay: 0.05s;
+      }
+      .sound-wave-bar:nth-child(2) {
+        height: 75%;
+        animation-delay: 0.2s;
+      }
+      .sound-wave-bar:nth-child(3) {
+        height: 100%;
+        animation-delay: 0.35s;
+      }
+      .sound-wave-bar:nth-child(4) {
+        height: 50%;
+        animation-delay: 0.15s;
+      }
+      .sound-wave-bar:nth-child(5) {
+        height: 85%;
+        animation-delay: 0.4s;
+      }
+      .sound-wave-bar:nth-child(6) {
+        height: 40%;
+        animation-delay: 0.25s;
+      }
+
+      /* Slide 2: Polaroid Best Couple */
+      .polaroid-frame {
+        background: #ffffff;
+        padding: 12px 12px 26px 12px;
+        border-radius: 4px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+        transform: rotate(-3deg);
+        animation: popPhoto 0.7s ease-out;
+        width: 245px;
+      }
+      .polaroid-img-wrapper {
+        width: 100%;
+        height: 220px;
+        overflow: hidden;
+        border-radius: 2px;
+        background: #111;
+      }
+      .polaroid-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .polaroid-caption {
+        margin-top: 12px;
+        color: #121212;
+        font-weight: 900;
+        font-size: 13px;
+        text-align: center;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      /* Slide 3: Big Stat "Minutes Listened" Style */
+      .stat-container-wrapped {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        animation: slideUp 0.6s ease;
+      }
+      .big-stat-number {
+        font-size: 92px;
+        font-weight: 900;
+        line-height: 0.9;
+        letter-spacing: -4px;
+        color: #ffffff;
+        text-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      }
+      .big-stat-unit {
+        font-size: 26px;
+        font-weight: 900;
+        color: var(--sp-yellow);
+        letter-spacing: 2px;
+        margin-top: 6px;
+        text-transform: uppercase;
+      }
+      .stat-percentile-pill {
+        margin-top: 16px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      /* Slide 4, 5, 6, 7: Spotify Leaderboard Top 5/Top 3 Card */
+      .top-list-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        animation: slideUp 0.6s ease;
+      }
+      .top-list-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 10px;
+        backdrop-filter: blur(10px);
+        transition: transform 0.2s;
+      }
+      .top-rank-num {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--sp-green);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+        font-size: 15px;
+        font-weight: 900;
+        color: #000;
+      }
+      .top-list-thumb {
+        width: clamp(104px, 30vw, 132px);
+        height: auto;
+        max-height: 112px;
+        aspect-ratio: auto;
+        flex-shrink: 0;
+        border-radius: 8px;
+        object-fit: contain;
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .top-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .top-title {
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.25;
+        color: #ffffff;
+      }
+      .top-desc {
+        font-size: 11px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 2px;
+      }
+      /* Slide 9: Time Machine Month Archive */
+      .time-machine-body {
+        align-items: stretch;
+        flex: 1 1 auto;
+        justify-content: flex-start;
+        min-height: 0;
+        padding-top: 8px;
+      }
+      .month-grid {
+        display: grid;
+        flex: 1 1 auto;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-rows: repeat(5, minmax(0, 1fr));
+        gap: 9px;
+        width: 100%;
+        min-height: 0;
+      }
+      .month-tile {
+        position: relative;
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        padding: 10px 9px;
+        border: 0;
+        border-radius: 9px;
+        background: #e8115b;
+        color: #fff;
+        font-family: var(--font-main);
+        text-align: left;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+          filter 0.2s ease,
+          transform 0.2s ease;
+      }
+      .month-tile:nth-child(13n + 1) {
+        background: #e8115b;
+      }
+      .month-tile:nth-child(13n + 2) {
+        background: #006450;
+      }
+      .month-tile:nth-child(13n + 3) {
+        background: #1e3264;
+      }
+      .month-tile:nth-child(13n + 4) {
+        background: #ba5d07;
+      }
+      .month-tile:nth-child(13n + 5) {
+        background: #8d67ab;
+      }
+      .month-tile:nth-child(13n + 6) {
+        background: #477d95;
+      }
+      .month-tile:nth-child(13n + 7) {
+        background: #e91429;
+      }
+      .month-tile:nth-child(13n + 8) {
+        background: #27856a;
+      }
+      .month-tile:nth-child(13n + 9) {
+        background: #503750;
+      }
+      .month-tile:nth-child(13n + 10) {
+        background: #af2896;
+      }
+      .month-tile:nth-child(13n + 11) {
+        background: #b06239;
+      }
+      .month-tile:nth-child(13n + 12) {
+        background: #537aa1;
+      }
+      .month-tile:nth-child(13n) {
+        background: #777777;
+      }
+      .month-tile:hover,
+      .month-tile:focus-visible {
+        filter: brightness(1.16);
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+        transform: scale(1.035);
+        z-index: 1;
+      }
+      .month-tile:active {
+        transform: scale(0.97);
+      }
+      .month-tile-name {
+        position: relative;
+        z-index: 1;
+        display: block;
+        font-size: clamp(10px, 3vw, 15px);
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: 0.4px;
+      }
+      .month-tile-symbol {
+        position: absolute;
+        right: -5px;
+        bottom: -10px;
+        color: #fff;
+        filter: grayscale(1) brightness(0) invert(1);
+        font-size: clamp(32px, 9vw, 54px);
+        font-weight: 900;
+        line-height: 1;
+        transform: rotate(-18deg);
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        transition: transform 0.25s ease;
+        pointer-events: none;
+      }
+      .month-tile:hover .month-tile-symbol,
+      .month-tile:focus-visible .month-tile-symbol {
+        transform: rotate(0deg) scale(1.08);
+      }
+      /* Slide 10: Spotify Artist Message Style */
+      .artist-message-card {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 18px;
+        padding: 24px 20px;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        animation: slideUp 0.6s ease;
+      }
+      .artist-header-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .artist-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        border: 2px solid var(--sp-green);
+      }
+      .artist-info h4 {
+        font-size: 15px;
+        font-weight: 800;
+        color: #fff;
+      }
+      .artist-info span {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--sp-green);
+        letter-spacing: 0.5px;
+      }
+      .artist-message-text {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.6;
+        color: #f5f5f5;
+        margin-bottom: 12px;
+      }
+
+      /* Slide 11: Final Summary Card (Spotify Wrapped Share Card) */
+      .summary-share-card {
+        width: 100%;
+        max-width: 320px;
+        background: #181818;
+        border-radius: 16px;
+        padding: 20px 18px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        animation: popPhoto 0.7s ease;
+      }
+      #lottie-celebration {
+        width: 150px;
+        height: 150px;
+        margin: 4px 0;
+      }
+      .replay-btn {
+        margin-top: 14px;
+        padding: 14px 30px;
+        background: var(--sp-green);
+        color: #000000;
+        border: none;
+        border-radius: 30px;
+        font-family: var(--font-main);
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          transform 0.2s,
+          background 0.2s;
+      }
+      .replay-btn:active {
+        transform: scale(0.94);
+        background: var(--sp-neon-green);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Audio Element (BGM HTML5) -->
+    <audio id="bgm-audio" loop preload="auto" src="music/favorite.mp3"></audio>
+
+    <div class="app-viewport">
+      <!-- Retro Noise Overlay -->
+      <div class="noise-overlay"></div>
+
+      <!-- Ambient Glowing Orbs Background -->
+      <div class="ambient-glow-container">
+        <div class="glowing-orb orb-1" id="orb1"></div>
+        <div class="glowing-orb orb-2" id="orb2"></div>
+        <div class="glowing-orb orb-3" id="orb3"></div>
+      </div>
+
+      <!-- =========================================================
+         SPOTIFY STORY TOP BAR (Progress Bars + Brand Header)
+    ========================================================= -->
+      <div
+        class="spotify-story-header"
+        id="spotifyStoryHeader"
+        aria-hidden="true"
+      >
+        <!-- Story Segments -->
+        <div class="story-progress-wrapper" id="storyBarsContainer">
+          <!-- 11 Segmen Progress Bar akan di-generate oleh JavaScript -->
+        </div>
+        <!-- Brand & Audio Control Row -->
+        <div class="spotify-brand-row">
+          <div class="spotify-brand-left">
+            <img class="spotify-icon-svg" src="spotify.png" alt="Spotify" />
+            <span class="spotify-brand-text">A A 1fst anniv wrap</span>
+          </div>
+          <div class="spotify-header-actions">
+            <div class="sp-audio-pill" id="audioToggle">
+              <div class="sp-audio-bars" id="musicWaves">
+                <span class="sp-audio-bar"></span>
+                <span class="sp-audio-bar"></span>
+                <span class="sp-audio-bar"></span>
+              </div>
+              <span id="audioStatusText">BGM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================================================
+         FASE 1: QUIZ / GATEKEEPER OVERLAY (Layar Penuh Hitam)
+    ========================================================= -->
+      <div class="phase-layer" id="phase-quiz">
+        <div class="spotify-quiz-card">
+          <div class="quiz-spotify-badge" id="quizNumberBadge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"
+              />
+            </svg>
+            VERIFIKASI HUBUNGAN #1
+          </div>
+          <h2 class="quiz-question-title" id="quizQuestionText">
+            Siapa yang paling sering ngambek di hubungan kita?
+          </h2>
+          <div class="quiz-options-grid" id="quizOptionsContainer">
+            <!-- Tombol Opsi Kuis dirender via JS -->
+          </div>
+          <div class="quiz-feedback-text" id="quizFeedback">
+            Oops, tebakan kamu kurang tepat sayang! Coba lagi ya 😜
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================================================
+         FASE 2: INTERAKSI BUKA KADO
+    ========================================================= -->
+      <div class="phase-layer hidden" id="phase-gift">
+        <div class="gift-wrap-box">
+          <span class="gift-badge">Agra's 1-Year Special Gift</span>
+          <h1 class="gift-title">Buka Kado 1 Tahun Kita! 🎁</h1>
+          <button
+            class="gift-play-button"
+            id="openGiftBtn"
+            aria-label="Buka Kado"
+          >
+            <svg viewBox="0 0 24 24">
+              <polygon points="6 4 20 12 6 20 6 4"></polygon>
+            </svg>
+          </button>
+          <p class="gift-subtext">
+            Ketuk tombol play untuk membuka Wrapped kita ✨
+          </p>
+        </div>
+      </div>
+
+      <!-- =========================================================
+         FASE 3: LOADING SCREEN
+    ========================================================= -->
+      <div class="phase-layer hidden" id="phase-loading">
+        <div class="loader-circle"></div>
+        <h3 class="loading-title">MEMUAT WRAPPED 2024...</h3>
+        <p class="loading-status-text" id="loadingStatusText">
+          Menghitung menit kebersamaan kita...
+        </p>
+      </div>
+
+      <!-- =========================================================
+         FASE 4: MAIN WRAPPED CONTENT (SLIDES)
+    ========================================================= -->
+      <div class="phase-layer hidden" id="phase-wrapped">
+        <!-- Tap Navigation Zones (Kiri Prev, Kanan Next) -->
+        <div
+          class="tap-nav-zone tap-left"
+          id="tapLeft"
+          title="Ketuk Kiri: Sebelumnya"
+        ></div>
+        <div
+          class="tap-nav-zone tap-right"
+          id="tapRight"
+          title="Ketuk Kanan: Selanjutnya"
+        ></div>
+
+        <!-- Slides Container -->
+        <div class="slides-container" id="slidesWrapper">
+          <!-- SLIDE 1: INTRO (Audio Aura Wrapped Style) -->
+          <div
+            class="story-slide intro-slide active"
+            data-bg="#160826"
+            data-orb1="#f037a5"
+            data-orb2="#ff4632"
+            data-orb3="#cdf564"
+          >
+            <div class="slide-meta-header">
+              <h1 class="slide-headline">HAPPY 1ST<br />ANNIVERSARY!</h1>
+            </div>
+          </div>
+
+          <!-- SLIDE 2: POLAROID BEST COUPLE -->
+          <div
+            class="story-slide"
+            data-bg="#04202c"
+            data-orb1="#2e77d0"
+            data-orb2="#1DB954"
+            data-orb3="#f037a5"
+          >
+            <div class="slide-meta-header">
+              <span class="wrapped-category-tag">TOP ARTIST OF MY HEART</span>
+              <h1 class="slide-headline">THE BEST<br />COUPLE</h1>
+            </div>
+            <div class="slide-body">
+              <div class="polaroid-frame">
+                <div class="polaroid-img-wrapper">
+                  <img
+                    src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=700&q=80"
+                    alt="Agra & Anggun"
+                  />
+                </div>
+                <div class="polaroid-caption">Agra & Anggun Forever ❤️</div>
+              </div>
+            </div>
+            <div class="slide-footer-note">
+              Pasangan nomor 1 di seluruh playlist kehidupanku.
+            </div>
+          </div>
+
+          <!-- SLIDE 3: 365 DAYS (Minutes Listened Stat Style) -->
+          <div
+            class="story-slide"
+            data-bg="#022a18"
+            data-orb1="#1DB954"
+            data-orb2="#cdf564"
+            data-orb3="#00F0FF"
+          >
+            <div class="slide-meta-header">
+              <span class="wrapped-category-tag">TOTAL TIME TOGETHER</span>
+              <h1 class="slide-headline">WAKTU TERBANG<br />BEGITU CEPAT</h1>
+            </div>
+            <div class="slide-body">
+              <div class="stat-container-wrapped">
+                <div class="big-stat-number">365</div>
+                <div class="big-stat-unit">HARI BERSAMA</div>
+                <div class="stat-percentile-pill">
+                  525.600 Menit • Top 0.01% Lovers
+                </div>
+                <p
+                  style="
+                    margin-top: 14px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    opacity: 0.9;
+                    max-width: 280px;
+                  "
+                >
+                  Lebih dari 8.760 jam penuh tawa, cerita, drama gemas, dan rasa
+                  sayang.
+                </p>
+              </div>
+            </div>
+            <div class="slide-footer-note">
+              Dan setiap detiknya selalu berharga sama kamu.
+            </div>
+          </div>
+
+          <div
+            class="story-slide category-transition-slide"
+            data-bg="#331400"
+            data-orb1="#ff4632"
+            data-orb2="#ffaa00"
+            data-orb3="#f037a5"
+          >
+            <div class="slide-meta-header">
+              <h1 class="slide-headline category-transition-copy">
+                Eh, kita paling sering pergi ke mana aja sih?
+              </h1>
+            </div>
+          </div>
+
+          <!-- SLIDE 4: TOP DESTINASI (Leaderboard List) -->
+          <div
+            class="story-slide"
+            data-bg="#331400"
+            data-orb1="#ff4632"
+            data-orb2="#ffaa00"
+            data-orb3="#f037a5"
+          >
+            <div class="slide-meta-header">
+              <span class="wrapped-category-tag">YOUR TOP PLACES</span>
+              <h1 class="slide-headline">TEMPAT PALING<br />BERKESAN</h1>
+            </div>
+            <div class="slide-body">
+              <div class="top-list-container top-places-list">
+                <div class="top-list-item">
+                  <div class="top-rank-num">1</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Tempat/1.%20Jamtos.jpg"
+                    alt="Jamtos"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Coffee Shop Sudut Kota</div>
+                    <div class="top-desc">
+                      Tempat deep talk berjam-jam tanpa rasa bosan
+                    </div>
+                  </div>
+                </div>
+                <div class="top-list-item">
+                  <div class="top-rank-num">2</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Tempat/2.%20Depati%20Coffe.jpg"
+                    alt="Depati Coffee"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Pantai Menjelang Sunset</div>
+                    <div class="top-desc">
+                      Momen senja sambil pegangan tangan
+                    </div>
+                  </div>
+                </div>
+                <div class="top-list-item">
+                  <div class="top-rank-num">3</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Tempat/3.%20Mie%20Yamin%20sipin.jpg"
+                    alt="Mie Yamin Sipin"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Mall Tempat Keliling Gabut</div>
+                    <div class="top-desc">
+                      Cuma muter-muter tanpa tujuan tapi seru
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="slide-footer-note">
+              Bukan tentang tempatnya, tapi tentang dengan siapa aku pergi.
+            </div>
+          </div>
+
+          <div
+            class="story-slide category-transition-slide"
+            data-bg="#1a0438"
+            data-orb1="#8c1eff"
+            data-orb2="#f037a5"
+            data-orb3="#2e77d0"
+          >
+            <div class="slide-meta-header">
+              <h1 class="slide-headline category-transition-copy">
+                Kalau lagi bareng, kita paling sering ngapain?
+              </h1>
+            </div>
+          </div>
+
+          <!-- SLIDE 5: TOP AKTIVITAS (Leaderboard List) -->
+          <div
+            class="story-slide"
+            data-bg="#1a0438"
+            data-orb1="#8c1eff"
+            data-orb2="#f037a5"
+            data-orb3="#2e77d0"
+          >
+            <div class="slide-meta-header">
+              <span class="wrapped-category-tag">YOUR TOP ACTIVITIES</span>
+              <h1 class="slide-headline">KEGIATAN FAVORIT<br />KITA</h1>
+            </div>
+            <div class="slide-body">
+              <div class="top-list-container">
+                <div class="top-list-item">
+                  <div class="top-rank-num">1</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Kegiatan/1.%20Hunting%20Jajan.jpg"
+                    alt="Hunting jajan"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Midnight Drive & Karokean</div>
+                    <div class="top-desc">
+                      Nyanyi sekencang-kencangnya di jalanan malam
+                    </div>
+                  </div>
+                </div>
+                <div class="top-list-item">
+                  <div class="top-rank-num">2</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Kegiatan/2.%20Keliling%20Jambi.jpg"
+                    alt="Keliling Jambi"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Nonton Film Sampai Ketiduran</div>
+                    <div class="top-desc">
+                      Maraton series favorit sambil pelukan santai
+                    </div>
+                  </div>
+                </div>
+                <div class="top-list-item">
+                  <div class="top-rank-num">3</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Kegiatan/3.%20Callllllll.jpg"
+                    alt="Telepon bersama"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Random Hunting Kuliner Malam</div>
+                    <div class="top-desc">
+                      Tiba-tiba lapar jam 11 malam dan cari jajan
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="slide-footer-note">
+              Rutinitas sederhana yang selalu bikin aku kangen.
+            </div>
+          </div>
+
+          <div
+            class="story-slide category-transition-slide"
+            data-bg="#2a001b"
+            data-orb1="#f037a5"
+            data-orb2="#ff4632"
+            data-orb3="#cdf564"
+          >
+            <div class="slide-meta-header">
+              <h1 class="slide-headline category-transition-copy">
+                Terus, makanan apa yang selalu kita cari?
+              </h1>
+            </div>
+          </div>
+
+          <!-- SLIDE 6: TOP KULINER (Leaderboard List) -->
+          <div
+            class="story-slide"
+            data-bg="#2a001b"
+            data-orb1="#f037a5"
+            data-orb2="#ff4632"
+            data-orb3="#cdf564"
+          >
+            <div class="slide-meta-header">
+              <span class="wrapped-category-tag">YOUR TOP CRAVINGS</span>
+              <h1 class="slide-headline">MAKANAN TERFAVORIT<br />KITA</h1>
+            </div>
+            <div class="slide-body">
+              <div class="top-list-container">
+                <div class="top-list-item">
+                  <div class="top-rank-num">1</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Makanan/1.%20Sushi.jpg"
+                    alt="Sushi"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Mie Pedas Favorit Anggun</div>
+                    <div class="top-desc">
+                      Bikin bibir merah dan heboh kepedasan
+                    </div>
+                  </div>
+                </div>
+                <div class="top-list-item">
+                  <div class="top-rank-num">2</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Makanan/2.%20Seblak%20Lens.jpg"
+                    alt="Seblak Lens"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Es Krim & Matcha Latte</div>
+                    <div class="top-desc">
+                      Pereda ngambek paling ampuh sedunia
+                    </div>
+                  </div>
+                </div>
+                <div class="top-list-item">
+                  <div class="top-rank-num">3</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/top/Makanan/3.%20Cake.jpg"
+                    alt="Cake"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Nasi Goreng Pinggir Jalan</div>
+                    <div class="top-desc">Penyelamat lapar tengah malam</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="slide-footer-note">
+              Perut kenyang, hati senang, sama kamu makin tenang.
+            </div>
+          </div>
+
+          <div
+            class="story-slide category-transition-slide"
+            data-bg="#041a2e"
+            data-orb1="#2e77d0"
+            data-orb2="#00F0FF"
+            data-orb3="#1DB954"
+          >
+            <div class="slide-meta-header">
+              <h1 class="slide-headline category-transition-copy">
+                Nah, ini beberapa hal kecil yang paling berkesan buat kita.
+              </h1>
+            </div>
+          </div>
+
+          <!-- SLIDE 7: TOP KADO & MEMORI (Leaderboard List) -->
+          <div
+            class="story-slide"
+            data-bg="#041a2e"
+            data-orb1="#2e77d0"
+            data-orb2="#00F0FF"
+            data-orb3="#1DB954"
+          >
+            <div class="slide-meta-header">
+              <span class="wrapped-category-tag">TOP MEMORABILIA</span>
+              <h1 class="slide-headline">HADIAH PALING<br />BERARTI</h1>
+            </div>
+            <div class="slide-body">
+              <div class="top-list-container">
+                <div class="top-list-item">
+                  <div class="top-rank-num">1</div>
+                  <img
+                    class="top-list-thumb"
+                    src="image/photo1.jpg"
+                    alt="Senyum pasangan"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Kehadiran & Senyum Manis Kamu</div>
+                    <div class="top-desc">
+                      Kado terindah yang Agra terima setiap harinya
+                    </div>
+                  </div>
+                </div>
+                <div class="top-list-item">
+                  <div class="top-rank-num">2</div>
+                  <img
+                    class="top-list-thumb"
+                    src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=160&h=160&q=80"
+                    alt="Surat tulisan tangan"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Surat Tulisan Tangan</div>
+                    <div class="top-desc">
+                      Selalu disimpan rapi dan dibaca ulang
+                    </div>
+                  </div>
+                </div>
+                <div class="top-list-item">
+                  <div class="top-rank-num">3</div>
+                  <img
+                    class="top-list-thumb"
+                    src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=160&h=160&q=80"
+                    alt="Cincin pasangan"
+                    loading="lazy"
+                  />
+                  <div class="top-content">
+                    <div class="top-title">Barang Couple Kesayangan</div>
+                    <div class="top-desc">Pengingat kita saling memiliki</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="slide-footer-note">
+              Setiap pemberian darimu selalu punya tempat istimewa.
+            </div>
+          </div>
+
+          <!-- SLIDE 9: TIME MACHINE MONTH ARCHIVE -->
+          <div
+            class="story-slide"
+            data-bg="#0a2618"
+            data-orb1="#1DB954"
+            data-orb2="#cdf564"
+            data-orb3="#2e77d0"
+          >
+            <div class="slide-meta-header">
+              <span class="wrapped-category-tag">PHOTO VAULT</span>
+              <h1 class="slide-headline">TIME MACHINE</h1>
+            </div>
+            <div class="slide-body time-machine-body">
+              <div
+                class="month-grid"
+                id="monthGrid"
+                aria-label="Pilih bulan"
+              ></div>
+            </div>
+            <div class="slide-footer-note">
+              Pilih bulan untuk membuka foto dan video kita.
+            </div>
+          </div>
+
+          <!-- SLIDE 10: PESAN ROMANTIS (Artist Thank You Note Style) -->
+          <div
+            class="story-slide"
+            data-bg="#26040d"
+            data-orb1="#ff4632"
+            data-orb2="#f037a5"
+            data-orb3="#8c1eff"
+          >
+            <div class="slide-meta-header">
+              <span class="wrapped-category-tag">A MESSAGE FROM AGRA</span>
+              <h1 class="slide-headline">SATU TAHUN<br />PERTAMA INI...</h1>
+            </div>
+            <div class="slide-body">
+              <div class="artist-message-card">
+                <div class="artist-header-row">
+                  <div class="artist-avatar">👦🏻</div>
+                  <div class="artist-info">
+                    <h4>Agra</h4>
+                    <span>Verified Partner • 100% Cinta</span>
+                  </div>
+                </div>
+                <p class="artist-message-text">
+                  "Satu tahun pertama ini baru permulaan buat cerita kita..."
+                </p>
+                <p
+                  class="artist-message-text"
+                  style="font-size: 13px; opacity: 0.9"
+                >
+                  Makasih ya sayang udah selalu ada, udah jadi rumah paling
+                  hangat buat Agra pulang, dan sabar ngadepin aku. Tetap saling
+                  genggam tangan ya! Aku sayang banget sama kamu, Anggun.
+                </p>
+              </div>
+            </div>
+            <div class="slide-footer-note">
+              Selalu dan selamanya untuk kamu.
+            </div>
+          </div>
+
+          <!-- SLIDE 11: CHAPTER 2 SEDANG DIMULAI & REPLAY CARD -->
+          <div
+            class="story-slide"
+            data-bg="#0c0c0c"
+            data-orb1="#1DB954"
+            data-orb2="#f037a5"
+            data-orb3="#cdf564"
+          >
+            <div class="slide-meta-header" style="text-align: center">
+              <span class="wrapped-category-tag">UPCOMING RELEASE</span>
+              <h1 class="slide-headline" style="font-size: 26px">
+                CHAPTER 2<br />SEDANG DIMULAI
+              </h1>
+            </div>
+            <div class="slide-body">
+              <div class="summary-share-card">
+                <div id="lottie-celebration"></div>
+                <div
+                  style="
+                    font-size: 14px;
+                    font-weight: 800;
+                    color: #fff;
+                    margin-top: 4px;
+                  "
+                >
+                  Agra & Anggun 2024 Wrapped
+                </div>
+                <p style="font-size: 11px; opacity: 0.7; margin-top: 2px">
+                  Happy 1st Anniversary My Love ❤️
+                </p>
+                <button class="replay-btn" id="replayBtn">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                    />
+                    <path d="M3 3v5h5" />
+                  </svg>
+                  PUTAR ULANG WRAPPED
+                </button>
+              </div>
+            </div>
+            <div class="slide-footer-note">
+              Siap untuk petualangan tahun ke-2 kita? 🚀
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+       JAVASCRIPT LOGIC LENGKAP
+  ========================================================= -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // ---------------------------------------------------------
+        // AUDIO SYSTEM (BGM DENGAN FADE IN HALUS)
+        // ---------------------------------------------------------
+        const bgmAudio = document.getElementById("bgm-audio");
+        const audioToggle = document.getElementById("audioToggle");
+        const musicWaves = document.getElementById("musicWaves");
+        const audioStatusText = document.getElementById("audioStatusText");
+        const audioStateKey = "agra-wrapped-bgm-state";
+        let isAudioPlaying = false;
+        let audioTargetVolume = 0.65;
+        let audioFadeInterval = null;
+
+        function fadeAudioTo(targetVolume, duration, onComplete) {
+          if (audioFadeInterval !== null) {
+            clearInterval(audioFadeInterval);
+          }
+
+          const startVolume = bgmAudio.volume;
+          const startTime = performance.now();
+          audioFadeInterval = setInterval(() => {
+            const progress = Math.min(
+              (performance.now() - startTime) / duration,
+              1,
+            );
+            bgmAudio.volume =
+              startVolume + (targetVolume - startVolume) * progress;
+
+            if (progress === 1) {
+              clearInterval(audioFadeInterval);
+              audioFadeInterval = null;
+              onComplete?.();
+            }
+          }, 30);
+        }
+
+        function saveAudioState() {
+          try {
+            sessionStorage.setItem(
+              audioStateKey,
+              JSON.stringify({
+                currentTime: bgmAudio.currentTime,
+                isPlaying: !bgmAudio.paused,
+                volume: audioTargetVolume,
+              }),
+            );
+          } catch (error) {
+            console.warn(
+              "Unable to save background music playback state:",
+              error,
+            );
+          }
+        }
+
+        function resumeBackgroundMusic() {
+          let savedState;
+          try {
+            savedState = JSON.parse(
+              sessionStorage.getItem(audioStateKey) ?? "null",
+            );
+          } catch (error) {
+            console.warn(
+              "Unable to read background music playback state:",
+              error,
+            );
+            return;
+          }
+          if (!savedState?.isPlaying) return;
+
+          const resume = () => {
+            if (Number.isFinite(savedState.currentTime)) {
+              bgmAudio.currentTime = savedState.currentTime;
+            }
+            audioTargetVolume = Number.isFinite(savedState.volume)
+              ? savedState.volume
+              : 0.65;
+            bgmAudio.volume = 0.01;
+            bgmAudio
+              .play()
+              .then(() => {
+                isAudioPlaying = true;
+                musicWaves.classList.remove("paused");
+                audioStatusText.textContent = "BGM";
+                fadeAudioTo(audioTargetVolume, 650, saveAudioState);
+              })
+              .catch((error) => {
+                console.warn("Unable to resume background music:", error);
+              });
+          };
+
+          if (bgmAudio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+            resume();
+          } else {
+            bgmAudio.addEventListener("loadedmetadata", resume, { once: true });
+          }
+        }
+
+        window.addEventListener("pagehide", saveAudioState);
+
+        function playBgmSmoothly() {
+          bgmAudio.volume = 0.05;
+          audioTargetVolume = 0.65;
+          const playPromise = bgmAudio.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                isAudioPlaying = true;
+                musicWaves.classList.remove("paused");
+                audioStatusText.textContent = "BGM";
+                saveAudioState();
+                fadeAudioTo(audioTargetVolume, 1200, saveAudioState);
+              })
+              .catch((err) => {
+                console.log("Autoplay restriction intercepted:", err);
+              });
+          }
+        }
+
+        function toggleAudio() {
+          if (bgmAudio.paused) {
+            bgmAudio
+              .play()
+              .then(() => {
+                isAudioPlaying = true;
+                musicWaves.classList.remove("paused");
+                audioStatusText.textContent = "BGM";
+                saveAudioState();
+              })
+              .catch((error) => {
+                console.warn("Unable to resume background music:", error);
+              });
+          } else {
+            bgmAudio.pause();
+            isAudioPlaying = false;
+            musicWaves.classList.add("paused");
+            audioStatusText.textContent = "OFF";
+          }
+          saveAudioState();
+        }
+
+        audioToggle.addEventListener("click", toggleAudio);
+
+        // ---------------------------------------------------------
+        // FASE 1: QUIZ / GATEKEEPER DATA & LOGIC
+        // ---------------------------------------------------------
+        const quizQuestions = [
+          {
+            number: "VERIFIKASI HUBUNGAN #1",
+            question: "Siapa yang paling sering ngambek di hubungan kita?",
+            options: [
+              { text: "Aku (Anggun)", isCorrect: true },
+              { text: "Kamu (Agra)", isCorrect: false },
+              { text: "Kita berdua", isCorrect: false },
+            ],
+            wrongFeedback:
+              "Masa kamu lupa siapa yang sering cemberut lucu? Coba lagi ya sayang 😜",
+          },
+          {
+            number: "VERIFIKASI HUBUNGAN #2",
+            question: "Udah berapa lama nih kita bareng-bareng?",
+            options: [
+              { text: "Baru kemaren", isCorrect: false },
+              { text: "Udah 1 Tahun dong!", isCorrect: true },
+              { text: "Lupa", isCorrect: false },
+            ],
+            wrongFeedback:
+              "Awas kalau lupa beneran ya! Coba pilih yang bener ❤️",
+          },
+        ];
+
+        let currentQuizIdx = 0;
+        let quizAnswerLocked = false;
+
+        const quizNumberBadge = document.getElementById("quizNumberBadge");
+        const quizQuestionText = document.getElementById("quizQuestionText");
+        const quizOptionsContainer = document.getElementById(
+          "quizOptionsContainer",
+        );
+        const quizFeedback = document.getElementById("quizFeedback");
+
+        function renderQuiz(index) {
+          quizAnswerLocked = false;
+          quizFeedback.classList.remove("visible");
+          const qData = quizQuestions[index];
+          quizNumberBadge.innerHTML = `
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z"/>
+          </svg>
+          ${qData.number}
+        `;
+          quizQuestionText.textContent = qData.question;
+          quizOptionsContainer.innerHTML = "";
+
+          qData.options.forEach((opt) => {
+            const btn = document.createElement("button");
+            btn.className = "quiz-btn";
+            btn.innerHTML = `<span>${opt.text}</span><span>➔</span>`;
+            btn.addEventListener("click", () =>
+              handleQuizOptionClick(btn, opt.isCorrect, qData.wrongFeedback),
+            );
+            quizOptionsContainer.appendChild(btn);
+          });
+        }
+
+        function handleQuizOptionClick(buttonEl, isCorrect, feedbackMsg) {
+          if (quizAnswerLocked) return;
+
+          if (isCorrect) {
+            quizAnswerLocked = true;
+            buttonEl.classList.add("correct");
+
+            if (window.confetti) {
+              confetti({
+                particleCount: 40,
+                spread: 60,
+                origin: { y: 0.6 },
+              });
+            }
+
+            setTimeout(() => {
+              currentQuizIdx++;
+              if (currentQuizIdx < quizQuestions.length) {
+                renderQuiz(currentQuizIdx);
+              } else {
+                // Menuju Fase 2 (Buka Kado)
+                document.getElementById("phase-quiz").classList.add("hidden");
+                document
+                  .getElementById("phase-gift")
+                  .classList.remove("hidden");
+              }
+            }, 800);
+          } else {
+            buttonEl.classList.add("wrong");
+            quizFeedback.textContent = feedbackMsg;
+            quizFeedback.classList.add("visible");
+
+            setTimeout(() => {
+              buttonEl.classList.remove("wrong");
+            }, 700);
+          }
+        }
+
+        renderQuiz(0);
+
+        // ---------------------------------------------------------
+        // FASE 2 & 3: BUKA KADO & LOADING TRANSITION
+        // ---------------------------------------------------------
+        const openGiftBtn = document.getElementById("openGiftBtn");
+        const phaseGift = document.getElementById("phase-gift");
+        const phaseLoading = document.getElementById("phase-loading");
+        const loadingStatusText = document.getElementById("loadingStatusText");
+        const phaseWrapped = document.getElementById("phase-wrapped");
+        const spotifyStoryHeader =
+          document.getElementById("spotifyStoryHeader");
+
+        function showStoryHeader() {
+          spotifyStoryHeader.classList.add("is-visible");
+          spotifyStoryHeader.setAttribute("aria-hidden", "false");
+        }
+
+        openGiftBtn.addEventListener("click", () => {
+          triggerAnniversaryConfetti();
+          playBgmSmoothly();
+
+          phaseGift.classList.add("hidden");
+          phaseLoading.classList.remove("hidden");
+
+          const statusSteps = [
+            "Menghitung menit kebersamaan kita...",
+            "Menyusun arsip memori Agra & Anggun...",
+            "Menyiapkan soundtrack terbaik untukmu...",
+            "Membuka lembaran Spotify Wrapped 2024...",
+          ];
+
+          let step = 0;
+          const statusInterval = setInterval(() => {
+            step++;
+            if (step < statusSteps.length) {
+              loadingStatusText.textContent = statusSteps[step];
+            } else {
+              clearInterval(statusInterval);
+              phaseLoading.classList.add("hidden");
+              phaseWrapped.classList.remove("hidden");
+              showStoryHeader();
+              initSlides();
+            }
+          }, 600);
+        });
+
+        function triggerAnniversaryConfetti() {
+          if (!window.confetti) return;
+          [0, 1].forEach((side) => {
+            confetti({
+              particleCount: 80,
+              angle: side === 0 ? 60 : 120,
+              spread: 45,
+              origin: { x: side, y: 0.7 },
+              colors: ["#1DB954", "#f037a5", "#cdf564", "#00F0FF", "#ff4632"],
+            });
+          });
+        }
+
+        // ---------------------------------------------------------
+        // FASE 4: MAIN SLIDES WRAPPED LOGIC
+        // ---------------------------------------------------------
+        const slides = Array.from(document.querySelectorAll(".story-slide"));
+        const storyBarsContainer =
+          document.getElementById("storyBarsContainer");
+        const orb1 = document.getElementById("orb1");
+        const orb2 = document.getElementById("orb2");
+        const orb3 = document.getElementById("orb3");
+        const tapLeft = document.getElementById("tapLeft");
+        const tapRight = document.getElementById("tapRight");
+        const monthGrid = document.getElementById("monthGrid");
+        let currentSlideIdx = 0;
+        let totalSlides = slides.length;
+
+        // Buat Story Progress Bar Items
+        storyBarsContainer.innerHTML = "";
+        slides.forEach((_, i) => {
+          const item = document.createElement("div");
+          item.className = "story-progress-item";
+          item.id = `bar-${i}`;
+          const fill = document.createElement("div");
+          fill.className = "story-progress-fill";
+          item.appendChild(fill);
+          storyBarsContainer.appendChild(item);
+        });
+
+        const slideBackgroundPhotos = ["image/photo1.jpg", "image/photo3.jpg"];
+
+        function updateSlide(newIdx) {
+          if (newIdx < 0 || newIdx >= totalSlides) return;
+
+          slides[currentSlideIdx].classList.remove("active");
+          currentSlideIdx = newIdx;
+          const activeSlide = slides[currentSlideIdx];
+          activeSlide.classList.add("active");
+          monthGrid.querySelectorAll(".month-tile").forEach((monthLink) => {
+            monthLink.href = `time-machine.html?month=${monthLink.dataset.monthIndex}&returnSlide=${currentSlideIdx}&music=1`;
+          });
+          const hasInteractiveMonthGrid = Boolean(
+            activeSlide.querySelector(".month-grid"),
+          );
+          tapLeft.style.pointerEvents = hasInteractiveMonthGrid ? "none" : "";
+          tapRight.style.pointerEvents =
+            hasInteractiveMonthGrid || currentSlideIdx === totalSlides - 1
+              ? "none"
+              : "";
+
+          // Ganti warna solid background & glowing orbs (0.8s CSS transition)
+          const newBg = activeSlide.getAttribute("data-bg") || "#121212";
+          phaseWrapped.style.backgroundColor = newBg;
+          const backgroundPhoto =
+            slideBackgroundPhotos[
+              currentSlideIdx % slideBackgroundPhotos.length
+            ];
+          phaseWrapped.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.56), rgba(0, 0, 0, 0.56)), url("${backgroundPhoto}")`;
+
+          if (activeSlide.dataset.orb1)
+            orb1.style.background = `radial-gradient(circle, ${activeSlide.dataset.orb1}, transparent 70%)`;
+          if (activeSlide.dataset.orb2)
+            orb2.style.background = `radial-gradient(circle, ${activeSlide.dataset.orb2}, transparent 70%)`;
+          if (activeSlide.dataset.orb3)
+            orb3.style.background = `radial-gradient(circle, ${activeSlide.dataset.orb3}, transparent 70%)`;
+
+          // Update Story Progress Bar
+          slides.forEach((_, idx) => {
+            const bar = document.getElementById(`bar-${idx}`);
+            if (idx < currentSlideIdx) {
+              bar.className = "story-progress-item completed";
+            } else if (idx === currentSlideIdx) {
+              bar.className = "story-progress-item active";
+            } else {
+              bar.className = "story-progress-item";
+            }
+          });
+
+          handleSlideTriggers(currentSlideIdx);
+        }
+
+        function initSlides() {
+          updateSlide(0);
+        }
+
+        // Navigasi Ketuk Kiri (Prev) & Kanan (Next)
+        document.getElementById("tapLeft").addEventListener("click", (e) => {
+          if (e.target.closest("#replayBtn")) return;
+          if (currentSlideIdx > 0) {
+            updateSlide(currentSlideIdx - 1);
+          }
+        });
+
+        document.getElementById("tapRight").addEventListener("click", (e) => {
+          if (e.target.closest("#replayBtn")) return;
+          if (currentSlideIdx < totalSlides - 1) {
+            updateSlide(currentSlideIdx + 1);
+          }
+        });
+
+        // Keyboard arrow navigation
+        document.addEventListener("keydown", (e) => {
+          if (!phaseWrapped.classList.contains("hidden")) {
+            if (e.key === "ArrowRight" || e.key === " ") {
+              if (currentSlideIdx < totalSlides - 1)
+                updateSlide(currentSlideIdx + 1);
+            } else if (e.key === "ArrowLeft") {
+              if (currentSlideIdx > 0) updateSlide(currentSlideIdx - 1);
+            }
+          }
+        });
+
+        // ---------------------------------------------------------
+        // SLIDE 9: TIME MACHINE MONTH ARCHIVE
+        // ---------------------------------------------------------
+        const archiveMonths = Array.from(
+          { length: 13 },
+          (_, index) => new Date(2025, 9 + index, 1),
+        );
+        const abbreviatedMonths = [
+          "OKT",
+          "NOV",
+          "DES",
+          "JAN",
+          "FEB",
+          "MAR",
+          "APR",
+          "MEI",
+          "JUN",
+          "JUL",
+          "AGU",
+          "SEP",
+          "OKT",
+        ];
+        const monthSymbols = [
+          "👑",
+          "🌸",
+          "🎀",
+          "🦋",
+          "🌷",
+          "💐",
+          "🐰",
+          "🩷",
+          "🌼",
+          "🪄",
+          "💖",
+          "🪷",
+          "🌺",
+        ];
+        archiveMonths.forEach((month, index) => {
+          const monthLink = document.createElement("a");
+          const monthName = new Intl.DateTimeFormat("id-ID", {
+            month: "long",
+          }).format(month);
+          monthLink.className = "month-tile";
+          monthLink.dataset.monthIndex = String(index);
+          monthLink.href = `time-machine.html?month=${index}`;
+          monthLink.setAttribute(
+            "aria-label",
+            `Buka ${monthName} ${month.getFullYear()}`,
+          );
+
+          const symbol = document.createElement("span");
+          symbol.className = "month-tile-symbol";
+          symbol.setAttribute("aria-hidden", "true");
+          symbol.textContent = monthSymbols[index];
+          const name = document.createElement("span");
+          name.className = "month-tile-name";
+          name.textContent = `${abbreviatedMonths[index]}\`${String(month.getFullYear()).slice(-2)}`;
+          monthLink.append(name, symbol);
+          monthGrid.appendChild(monthLink);
+        });
+
+        document
+          .getElementById("slidesWrapper")
+          .addEventListener("click", (event) => {
+            if (
+              !slides[currentSlideIdx].querySelector(".month-grid") ||
+              event.target.closest(".month-tile")
+            )
+              return;
+
+            const bounds = phaseWrapped.getBoundingClientRect();
+            const clickRatio = (event.clientX - bounds.left) / bounds.width;
+            if (clickRatio < 0.36 && currentSlideIdx > 0) {
+              updateSlide(currentSlideIdx - 1);
+            } else if (
+              clickRatio >= 0.36 &&
+              currentSlideIdx < totalSlides - 1
+            ) {
+              updateSlide(currentSlideIdx + 1);
+            }
+          });
+
+        // ---------------------------------------------------------
+        // SLIDE 11: LOTTIE CELEBRATION
+        // ---------------------------------------------------------
+        let lottieAnimInstance = null;
+        function playLottieCelebration() {
+          const container = document.getElementById("lottie-celebration");
+          if (!container) return;
+
+          if (!lottieAnimInstance) {
+            lottieAnimInstance = lottie.loadAnimation({
+              container: container,
+              renderer: "svg",
+              loop: true,
+              autoplay: true,
+              path: "https://assets5.lottiefiles.com/packages/lf20_touohxv0.json",
+            });
+          } else {
+            lottieAnimInstance.goToAndPlay(0);
+          }
+
+          if (window.confetti) {
+            confetti({
+              particleCount: 100,
+              spread: 90,
+              origin: { y: 0.5 },
+            });
+          }
+        }
+
+        document.getElementById("replayBtn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          updateSlide(0);
+        });
+
+        function handleSlideTriggers(idx) {
+          if (idx === totalSlides - 1) {
+            playLottieCelebration();
+          }
+        }
+
+        const restoreSlideParam = new URLSearchParams(
+          window.location.search,
+        ).get("restoreSlide");
+        if (restoreSlideParam !== null) {
+          const requestedSlide = Number.parseInt(restoreSlideParam, 10);
+          if (Number.isInteger(requestedSlide)) {
+            document.getElementById("phase-quiz").classList.add("hidden");
+            document.getElementById("phase-gift").classList.add("hidden");
+            document.getElementById("phase-loading").classList.add("hidden");
+            phaseWrapped.classList.remove("hidden");
+            showStoryHeader();
+            updateSlide(Math.min(Math.max(requestedSlide, 0), totalSlides - 1));
+            resumeBackgroundMusic();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

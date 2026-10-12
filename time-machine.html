@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <title>Time Machine | Agra & Anggun</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      :root {
+        color-scheme: dark;
+        --page-bg: #000000;
+        --panel-bg: #101010;
+        --accent: #1ed760;
+        --text: #f5f7f5;
+        --muted: #9b9b9b;
+        --line: rgba(255, 255, 255, 0.12);
+        font-family: "Montserrat", sans-serif;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        min-height: 100svh;
+        margin: 0;
+        color: var(--text);
+        background: var(--page-bg);
+        overflow-y: auto;
+      }
+
+      button,
+      a {
+        font: inherit;
+      }
+
+      .gallery-page {
+        display: flex;
+        flex-direction: column;
+        width: min(100%, 720px);
+        min-height: 100vh;
+        min-height: 100svh;
+        margin: 0 auto;
+        padding: max(24px, env(safe-area-inset-top)) 24px
+          max(26px, env(safe-area-inset-bottom));
+      }
+
+      .page-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 2px 2px 20px;
+      }
+
+      .back-button {
+        display: grid;
+        flex: 0 0 46px;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        color: var(--text);
+        background: #111;
+        text-decoration: none;
+        font-size: 24px;
+        cursor: pointer;
+        transition:
+          color 180ms ease,
+          border-color 180ms ease,
+          background 180ms ease,
+          transform 180ms ease;
+      }
+
+      .back-button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: #171717;
+        transform: translateX(-2px);
+      }
+
+      .back-button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      .back-arrow {
+        transform: translateY(-2px);
+      }
+
+      .page-kicker {
+        margin: 0 0 6px;
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(22px, 5vw, 27px);
+        font-weight: 900;
+        line-height: 1.15;
+        text-transform: capitalize;
+        letter-spacing: -0.7px;
+      }
+
+      .media-stage {
+        position: relative;
+        display: grid;
+        flex: 0 0 70vh;
+        place-items: center;
+        height: 70vh;
+        min-height: 70vh;
+        max-height: 70vh;
+        overflow: hidden;
+        perspective: 1200px;
+        isolation: isolate;
+        touch-action: pan-y;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        background:
+          radial-gradient(
+            ellipse at 50% 38%,
+            rgba(29, 185, 84, 0.12),
+            transparent 52%
+          ),
+          linear-gradient(145deg, rgba(255, 255, 255, 0.045), transparent 48%),
+          #030504;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 24px 70px rgba(0, 0, 0, 0.42);
+      }
+
+      @supports (height: 70svh) {
+        .media-stage {
+          flex-basis: 70svh;
+          height: 70svh;
+          min-height: 70svh;
+          max-height: 70svh;
+        }
+      }
+
+      .media-card {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: block;
+        width: max-content;
+        height: max-content;
+        place-items: center;
+        overflow: visible;
+        transform-style: preserve-3d;
+        transition:
+          transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          opacity 400ms ease,
+          filter 400ms ease;
+      }
+
+      .media-card.current {
+        z-index: 2;
+        transform: translate(-50%, -50%) translateZ(56px);
+      }
+
+      .media-card.previous {
+        z-index: 1;
+        opacity: 0.5;
+        filter: saturate(0.65) brightness(0.68);
+        transform: translate(-112%, -50%) rotateY(28deg) scale(0.83);
+      }
+
+      .media-card.next {
+        z-index: 1;
+        opacity: 0.5;
+        filter: saturate(0.65) brightness(0.68);
+        transform: translate(12%, -50%) rotateY(-28deg) scale(0.83);
+      }
+
+      button.media-card {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .media-card img,
+      .media-card video {
+        display: block;
+        width: auto;
+        height: auto;
+        max-height: var(--media-max-height, min(72vh, 620px));
+        -webkit-user-drag: none;
+        user-select: none;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 18px;
+        background: #080c09;
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+      }
+
+      .media-card.preview img {
+        opacity: 0.82;
+      }
+
+      .media-card.preview.video-preview {
+        display: grid;
+        width: min(40vw, 220px);
+        aspect-ratio: 9 / 16;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 18px;
+        background:
+          radial-gradient(
+            circle at 50% 40%,
+            rgba(29, 185, 84, 0.2),
+            transparent 55%
+          ),
+          #080c09;
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+      }
+
+      .video-preview-icon {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 32px;
+      }
+
+      .media-card.current video {
+        opacity: 0;
+        transition: opacity 180ms ease;
+      }
+
+      .media-card.current video.is-ready {
+        opacity: 1;
+      }
+
+      .media-card.preview::after {
+        position: absolute;
+        inset: 0;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: inherit;
+        background: linear-gradient(
+          180deg,
+          transparent 55%,
+          rgba(0, 0, 0, 0.28)
+        );
+        content: "";
+        pointer-events: none;
+      }
+
+      .media-card.enter-from-next {
+        animation: mediaEnterFromNext 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      .media-card.enter-from-previous {
+        animation: mediaEnterFromPrevious 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      @keyframes mediaEnterFromNext {
+        from {
+          opacity: 0.45;
+          transform: translate(12%, -50%) rotateY(-28deg) scale(0.83);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%) translateZ(56px);
+        }
+      }
+
+      @keyframes mediaEnterFromPrevious {
+        from {
+          opacity: 0.45;
+          transform: translate(-112%, -50%) rotateY(28deg) scale(0.83);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%) translateZ(56px);
+        }
+      }
+
+      .media-footer {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 52px;
+        margin-top: 4px;
+        padding: 10px 2px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.09);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .media-kind {
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .swipe-hint {
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .month-note {
+        flex: 0 0 auto;
+        margin-top: 10px;
+        padding: 19px 20px 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: linear-gradient(145deg, #111 0%, #090909 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.035),
+          0 16px 36px rgba(0, 0, 0, 0.32);
+        animation: noteReveal 420ms ease both;
+      }
+
+      .month-note-label {
+        margin: 0 0 7px;
+        color: var(--accent);
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+      }
+
+      .month-note h2 {
+        margin: 0;
+        font-size: clamp(17px, 4.5vw, 21px);
+        font-weight: 900;
+        line-height: 1.25;
+      }
+
+      .month-note p {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.65;
+        overflow-wrap: anywhere;
+      }
+
+      @keyframes noteReveal {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-height: 620px) {
+        .gallery-page {
+          padding-top: 12px;
+          padding-bottom: 12px;
+        }
+
+        .page-header {
+          padding-bottom: 10px;
+        }
+
+        .media-stage {
+          flex-basis: 70vh;
+          height: 70vh;
+          min-height: 70vh;
+          max-height: 70vh;
+        }
+
+        .month-note {
+          padding: 12px 14px;
+        }
+
+        .month-note p {
+          font-size: 11px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .gallery-page {
+          width: 100%;
+          min-height: 100vh;
+          min-height: 100svh;
+          padding: max(16px, env(safe-area-inset-top)) 16px
+            max(14px, env(safe-area-inset-bottom));
+        }
+
+        .page-header {
+          gap: 12px;
+          padding: 0 0 16px;
+        }
+
+        h1 {
+          font-size: clamp(20px, 6vw, 24px);
+        }
+
+        .media-stage {
+          flex: 0 0 70vh;
+          height: 70vh;
+          min-height: 70vh;
+          max-height: 70vh;
+          border-radius: 20px;
+        }
+
+        .media-card img,
+        .media-card video {
+          max-width: calc(100vw - 76px);
+          max-height: var(--media-max-height, min(56svh, 460px));
+          border-radius: 14px;
+        }
+
+        .media-card.previous {
+          transform: translate(-104%, -50%) rotateY(24deg) scale(0.76);
+        }
+
+        .media-card.next {
+          transform: translate(4%, -50%) rotateY(-24deg) scale(0.76);
+        }
+
+        .month-note {
+          padding: 16px;
+          border-radius: 15px;
+        }
+
+        .month-note p {
+          font-size: 11px;
+          line-height: 1.55;
+        }
+
+        .media-footer {
+          min-height: 38px;
+          font-size: 11px;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .gallery-page {
+          padding-right: 10px;
+          padding-left: 10px;
+        }
+
+        .media-card img,
+        .media-card video {
+          max-width: calc(100vw - 60px);
+        }
+      }
+
+      @supports (height: 70svh) {
+        .media-stage {
+          flex-basis: 70svh;
+          height: 70svh;
+          min-height: 70svh;
+          max-height: 70svh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <audio id="bgm-audio" loop preload="auto" src="music/favorite.mp3"></audio>
+
+    <main class="gallery-page">
+      <header class="page-header">
+        <button
+          class="back-button"
+          id="backButton"
+          type="button"
+          aria-label="Kembali ke Time Machine"
+        >
+          <span class="back-arrow" aria-hidden="true">&#8592;</span>
+        </button>
+        <div>
+          <p class="page-kicker">Time Machine</p>
+          <h1 id="monthTitle">Kenangan kita</h1>
+        </div>
+      </header>
+
+      <section
+        class="media-stage"
+        id="mediaStage"
+        aria-label="Carousel kenangan"
+      ></section>
+
+      <section class="month-note" aria-live="polite">
+        <p class="month-note-label" id="monthNoteLabel">Cerita bulan ini</p>
+        <h2 id="monthNoteTitle"></h2>
+        <p id="monthNoteCopy"></p>
+      </section>
+
+      <footer class="media-footer" aria-live="polite">
+        <span class="media-kind" id="mediaKind"></span>
+        <span class="swipe-hint">Geser untuk melihat kenangan lain</span>
+        <span id="mediaCount"></span>
+      </footer>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const requestedMonth = Number.parseInt(params.get("month") ?? "0", 10);
+      const monthIndex = Number.isInteger(requestedMonth)
+        ? Math.min(Math.max(requestedMonth, 0), 12)
+        : 0;
+      const selectedMonth = new Date(2025, 9 + monthIndex, 1);
+      const monthFolder = `${selectedMonth.getFullYear()}-${String(
+        selectedMonth.getMonth() + 1,
+      ).padStart(2, "0")}`;
+      const photoCountsByMonth = [12, 4, 6, 7, 10, 6, 5, 10, 9, 4, 9, 6, 9];
+      const videoCountsByMonth = [2, 0, 3, 3, 1, 4, 3, 2, 2, 6, 3, 1, 0];
+      const monthName = new Intl.DateTimeFormat("id-ID", {
+        month: "long",
+      }).format(selectedMonth);
+      const photoItems = Array.from(
+        { length: photoCountsByMonth[monthIndex] },
+        (_, index) => ({
+          type: "foto",
+          src: `image/time_machine/${monthFolder}/photo_${index + 1}.webp`,
+          alt: `Kenangan ${monthName} ${selectedMonth.getFullYear()}, foto ${index + 1}`,
+        }),
+      );
+      const videoItems = Array.from(
+        { length: videoCountsByMonth[monthIndex] },
+        (_, index) => ({
+          type: "video",
+          src: `image/time_machine/${monthFolder}/video_${index + 1}.mp4`,
+          alt: `Kenangan ${monthName} ${selectedMonth.getFullYear()}, video ${index + 1}`,
+        }),
+      );
+      const mediaItems = [...photoItems, ...videoItems];
+      for (let index = mediaItems.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [mediaItems[index], mediaItems[randomIndex]] = [
+          mediaItems[randomIndex],
+          mediaItems[index],
+        ];
+      }
+      const monthTitle = document.getElementById("monthTitle");
+      const mediaStage = document.getElementById("mediaStage");
+      const mediaKind = document.getElementById("mediaKind");
+      const mediaCount = document.getElementById("mediaCount");
+      const monthNoteLabel = document.getElementById("monthNoteLabel");
+      const monthNoteTitle = document.getElementById("monthNoteTitle");
+      const monthNoteCopy = document.getElementById("monthNoteCopy");
+      const bgmAudio = document.getElementById("bgm-audio");
+      const audioStateKey = "agra-wrapped-bgm-state";
+      let audioTargetVolume = 0.65;
+      let audioFadeInterval = null;
+
+      function fadeAudioTo(targetVolume, duration, onComplete) {
+        if (audioFadeInterval !== null) {
+          clearInterval(audioFadeInterval);
+        }
+
+        const startVolume = bgmAudio.volume;
+        const startTime = performance.now();
+        audioFadeInterval = setInterval(() => {
+          const progress = Math.min(
+            (performance.now() - startTime) / duration,
+            1,
+          );
+          bgmAudio.volume =
+            startVolume + (targetVolume - startVolume) * progress;
+
+          if (progress === 1) {
+            clearInterval(audioFadeInterval);
+            audioFadeInterval = null;
+            onComplete?.();
+          }
+        }, 30);
+      }
+
+      const monthNotes = [
+        [
+          "Awal dari cerita kita",
+          "Buka kembali foto-foto bulan ini dan ingat lagi awal perjalanan kita.",
+        ],
+        [
+          "Momen kecil yang berharga",
+          "Setiap foto punya ceritanya sendiri. Pilih satu dan ingat lagi momen di baliknya.",
+        ],
+        [
+          "Cerita yang terus bertambah",
+          "Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.Jelajahi foto-foto bulan ini dan temukan momen yang ingin kamu simpan lebih lama.",
+        ],
+        [
+          "Hal sederhana, rasa istimewa",
+          "Kadang satu foto sederhana cukup untuk bikin kangen. Lihat lagi kenangan favoritmu.",
+        ],
+        [
+          "Senyum di antara kenangan",
+          "Lihat kembali foto bulan ini—mungkin ada detail kecil yang baru terasa berharga.",
+        ],
+        [
+          "Satu bab lagi bersama",
+          "Bulan berganti, cerita kita terus berjalan. Foto-foto ini menyimpan bagian kecil dari perjalanan itu.",
+        ],
+        [
+          "Kenangan yang bikin dekat",
+          "Buka arsip bulan ini dan nikmati lagi momen-momen yang tersimpan.",
+        ],
+        [
+          "Hari-hari yang berarti",
+          "Di balik setiap foto ada suasana yang pernah kita rasakan. Hidupkan lagi ceritanya.",
+        ],
+        [
+          "Potongan cerita kita",
+          "Lihat satu per satu foto bulan ini dan temukan momen yang membawa senyum kembali.",
+        ],
+        [
+          "Momen untuk dikenang lagi",
+          "Arsip bulan ini menunggu untuk dibuka. Pilih satu foto yang paling kamu rindukan.",
+        ],
+        [
+          "Rasa hangat yang tersimpan",
+          "Temukan lagi momen bulan ini yang menjadi bagian berharga dari cerita kita.",
+        ],
+        [
+          "Terima kasih untuk setiap momen",
+          "Buka kembali foto bulan ini dan syukuri semua cerita yang sudah kita bagi.",
+        ],
+        [
+          "Cerita kita berlanjut",
+          "Ini bukan akhir cerita—hanya satu album lagi untuk dikenang. Masih banyak momen baru yang bisa kita buat bersama.",
+        ],
+      ];
+      let mediaIndex = 0;
+
+      function readAudioState() {
+        try {
+          return JSON.parse(sessionStorage.getItem(audioStateKey) ?? "null");
+        } catch (error) {
+          console.warn(
+            "Unable to read background music playback state:",
+            error,
+          );
+          return null;
+        }
+      }
+
+      function saveAudioState() {
+        try {
+          sessionStorage.setItem(
+            audioStateKey,
+            JSON.stringify({
+              currentTime: bgmAudio.currentTime,
+              isPlaying: !bgmAudio.paused,
+              volume: audioTargetVolume,
+            }),
+          );
+        } catch (error) {
+          console.warn(
+            "Unable to save background music playback state:",
+            error,
+          );
+        }
+      }
+
+      const savedAudioState = readAudioState();
+      if (params.get("music") === "1" && savedAudioState?.isPlaying) {
+        const resumeBackgroundMusic = () => {
+          if (Number.isFinite(savedAudioState.currentTime)) {
+            bgmAudio.currentTime = savedAudioState.currentTime;
+          }
+          audioTargetVolume = Number.isFinite(savedAudioState.volume)
+            ? savedAudioState.volume
+            : 0.65;
+          bgmAudio.volume = 0.01;
+          bgmAudio
+            .play()
+            .then(() => fadeAudioTo(audioTargetVolume, 650, saveAudioState))
+            .catch((error) => {
+              console.warn("Unable to resume background music:", error);
+            });
+        };
+
+        if (bgmAudio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+          resumeBackgroundMusic();
+        } else {
+          bgmAudio.addEventListener("loadedmetadata", resumeBackgroundMusic, {
+            once: true,
+          });
+        }
+      }
+
+      window.addEventListener("pagehide", saveAudioState);
+
+      const mediaStageObserver = new ResizeObserver(() => {
+        mediaStage.style.setProperty(
+          "--media-max-height",
+          `${Math.max(120, mediaStage.clientHeight - 32)}px`,
+        );
+      });
+      mediaStageObserver.observe(mediaStage);
+
+      monthTitle.textContent = new Intl.DateTimeFormat("id-ID", {
+        month: "long",
+        year: "numeric",
+      }).format(selectedMonth);
+      monthNoteLabel.textContent = `Catatan ${monthName} ${selectedMonth.getFullYear()}`;
+      monthNoteTitle.textContent = monthNotes[monthIndex][0];
+      monthNoteCopy.textContent = monthNotes[monthIndex][1];
+
+      function createPreview(index, direction) {
+        const item = mediaItems[index];
+        const preview = document.createElement("div");
+        preview.className = `media-card preview ${direction}`;
+        preview.setAttribute("aria-hidden", "true");
+        if (item.type === "video") {
+          preview.classList.add("video-preview");
+          const icon = document.createElement("span");
+          icon.className = "video-preview-icon";
+          icon.textContent = "▶";
+          preview.appendChild(icon);
+          return preview;
+        }
+
+        const image = document.createElement("img");
+        image.src = item.src;
+        image.alt = "";
+        preview.appendChild(image);
+        return preview;
+      }
+
+      function renderMedia(direction = 0, requestedIndex = mediaIndex) {
+        mediaIndex = requestedIndex;
+        const currentItem = mediaItems[mediaIndex];
+        const currentVideo = mediaStage.querySelector("video");
+        if (currentVideo) currentVideo.pause();
+
+        const media = document.createElement(
+          currentItem.type === "video" ? "video" : "img",
+        );
+        media.src = currentItem.src;
+        media.alt = currentItem.type === "foto" ? currentItem.alt : "";
+
+        if (currentItem.type === "video") {
+          media.autoplay = true;
+          media.controls = true;
+          media.loop = true;
+          media.muted = false;
+          media.playsInline = true;
+          media.preload = "auto";
+          media.setAttribute("aria-label", currentItem.alt);
+          media.addEventListener(
+            "loadeddata",
+            () => media.classList.add("is-ready"),
+            { once: true },
+          );
+        }
+
+        const previousIndex =
+          (mediaIndex - 1 + mediaItems.length) % mediaItems.length;
+        const nextIndex = (mediaIndex + 1) % mediaItems.length;
+        const previousPreview = createPreview(previousIndex, "previous");
+        const nextPreview = createPreview(nextIndex, "next");
+        const currentCard = document.createElement("div");
+        currentCard.className = "media-card current";
+        if (direction < 0) {
+          currentCard.classList.add("enter-from-previous");
+        } else if (direction > 0) {
+          currentCard.classList.add("enter-from-next");
+        }
+        currentCard.appendChild(media);
+
+        mediaStage.replaceChildren(previousPreview, currentCard, nextPreview);
+        if (currentItem.type === "video") {
+          media.play().catch((error) => {
+            if (error.name === "NotAllowedError") return;
+            console.error("Video autoplay failed:", error);
+          });
+        }
+        mediaKind.textContent = currentItem.type;
+        mediaCount.textContent = `${String(mediaIndex + 1).padStart(2, "0")} / ${String(mediaItems.length).padStart(2, "0")}`;
+      }
+
+      function moveMedia(direction) {
+        renderMedia(
+          direction,
+          (mediaIndex + direction + mediaItems.length) % mediaItems.length,
+        );
+      }
+
+      let swipeStart = null;
+      mediaStage.addEventListener("pointerdown", (event) => {
+        if (!event.isPrimary || event.button !== 0) return;
+        swipeStart = {
+          x: event.clientX,
+          y: event.clientY,
+          pointerId: event.pointerId,
+        };
+        mediaStage.setPointerCapture(event.pointerId);
+      });
+      mediaStage.addEventListener("pointerup", (event) => {
+        if (!swipeStart || swipeStart.pointerId !== event.pointerId) return;
+        const swipeDistance = event.clientX - swipeStart.x;
+        const verticalDistance = event.clientY - swipeStart.y;
+        swipeStart = null;
+        if (
+          Math.abs(swipeDistance) >= 40 &&
+          Math.abs(swipeDistance) > Math.abs(verticalDistance) * 1.2
+        ) {
+          moveMedia(swipeDistance < 0 ? 1 : -1);
+        }
+      });
+      mediaStage.addEventListener("pointercancel", () => {
+        swipeStart = null;
+      });
+      document.getElementById("backButton").addEventListener("click", () => {
+        const returnSlide = params.get("returnSlide");
+        const resumeUrl = /^\d+$/.test(returnSlide ?? "")
+          ? `index.html?restoreSlide=${returnSlide}`
+          : "index.html";
+        if (bgmAudio.paused) {
+          window.location.href = resumeUrl;
+          return;
+        }
+
+        const backButton = document.getElementById("backButton");
+        if (backButton.disabled) return;
+        backButton.disabled = true;
+        fadeAudioTo(0, 400, () => {
+          saveAudioState();
+          window.location.href = resumeUrl;
+        });
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.target.closest("video, button, a")) return;
+        if (event.key === "ArrowLeft") moveMedia(-1);
+        if (event.key === "ArrowRight") moveMedia(1);
+      });
+
+      renderMedia();
+    </script>
+  </body>
+</html>
