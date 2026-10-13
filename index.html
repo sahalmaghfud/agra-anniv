@@ -1400,7 +1400,7 @@
                 <span class="sp-audio-bar"></span>
                 <span class="sp-audio-bar"></span>
               </div>
-              <span id="audioStatusText">BGM</span>
+              <span id="audioStatusText">Music</span>
             </div>
           </div>
         </div>
@@ -2403,7 +2403,7 @@
             bgmAudio.volume = 0.08;
             isAudioPlaying = true;
             musicWaves.classList.remove("paused");
-            audioStatusText.textContent = "BGM";
+            audioStatusText.textContent = "Music";
             saveAudioState();
             const playPromise = bgmAudio.play();
             if (playPromise !== undefined) {
@@ -2412,7 +2412,7 @@
                   if (currentToken !== trackSwitchToken) return;
                   isAudioPlaying = true;
                   musicWaves.classList.remove("paused");
-                  audioStatusText.textContent = "BGM";
+                  audioStatusText.textContent = "Music";
                   fadeAudioTo(audioTargetVolume, 600, saveAudioState);
                 })
                 .catch((error) => {
@@ -2466,7 +2466,7 @@
               .then(() => {
                 isAudioPlaying = true;
                 musicWaves.classList.remove("paused");
-                audioStatusText.textContent = "BGM";
+                audioStatusText.textContent = "Music";
                 fadeAudioTo(audioTargetVolume, 650, saveAudioState);
               })
               .catch((error) => {
@@ -2493,7 +2493,7 @@
               .then(() => {
                 isAudioPlaying = true;
                 musicWaves.classList.remove("paused");
-                audioStatusText.textContent = "BGM";
+                audioStatusText.textContent = "Music";
                 saveAudioState();
                 fadeAudioTo(audioTargetVolume, 1200, saveAudioState);
               })
@@ -2513,7 +2513,7 @@
               .then(() => {
                 isAudioPlaying = true;
                 musicWaves.classList.remove("paused");
-                audioStatusText.textContent = "BGM";
+                audioStatusText.textContent = "Music";
                 saveAudioState();
               })
               .catch((error) => {
