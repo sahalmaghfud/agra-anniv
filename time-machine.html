@@ -604,7 +604,7 @@
           "Ciee yang pertama kali dapet bunga nih, Pertama kali niatin photobooth tiap tgl 10 juga!",
         ],
         [
-          "Bulan\"nya Mahasiswa Skripsian [emot mata]",
+          "Bulan\"nya Mahasiswa Skripsian 👀",
           "Lagi hectic\"nya skrispi selalu ada self rewardnya di bulan ini!",
         ],
         [
@@ -613,7 +613,7 @@
         ],
         [
           "Minggir semuanya cewe saya mau bimbingan!",
-          "Bulan ini ada mahasiswa psikologi pertama yang sempro loh di angkatan 22 [emot mata] kerennya ternyata cewe aku!",
+          "Bulan ini ada mahasiswa psikologi pertama yang sempro loh di angkatan 22 👀 kerennya ternyata cewe aku!",
         ],
         [
           "Libur Telah tibaa!",
@@ -629,7 +629,7 @@
         ],
         [
           "Unofficially Sarjana is here!",
-          "Bulan ini penuh self reward dan gift karna ada yang Unofficially Sarjana! jangan lupa sushi rawr harimau [emot harimau]",
+          "Bulan ini penuh self reward dan gift karna ada yang Unofficially Sarjana! jangan lupa sushi rawr harimau 🐯",
         ],
         [
           "Yudisium Penuh drama",
@@ -670,6 +670,7 @@
               currentTime: bgmAudio.currentTime,
               isPlaying: !bgmAudio.paused,
               volume: audioTargetVolume,
+              track: bgmAudio.getAttribute("src") || "music/favorite.mp3",
             }),
           );
         } catch (error) {
@@ -682,6 +683,13 @@
 
       const savedAudioState = readAudioState();
       if (params.get("music") === "1" && savedAudioState?.isPlaying) {
+        if (
+          savedAudioState.track &&
+          bgmAudio.getAttribute("src") !== savedAudioState.track
+        ) {
+          bgmAudio.src = savedAudioState.track;
+        }
+
         const resumeBackgroundMusic = () => {
           if (Number.isFinite(savedAudioState.currentTime)) {
             bgmAudio.currentTime = savedAudioState.currentTime;

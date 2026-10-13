@@ -19,6 +19,10 @@
     <!-- Canvas Confetti CDN -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
+    <!-- Preload Critical First Background and Polaroid -->
+    <link rel="preload" as="image" href="image/Background/first.webp" type="image/webp" />
+    <link rel="preload" as="image" href="image/Background/polaroid.webp" type="image/webp" />
+
     <style>
       /* =============================================================
        1. SPOTIFY WRAPPED TOKENS & RESET
@@ -1358,6 +1362,7 @@
   <body>
     <!-- Audio Element (BGM HTML5) -->
     <audio id="bgm-audio" loop preload="auto" src="music/favorite.mp3"></audio>
+    <audio id="bgm-preloader" preload="auto" src="music/janjisuci.mp3" style="display: none"></audio>
 
     <div class="app-viewport">
       <!-- Retro Noise Overlay -->
@@ -1512,7 +1517,7 @@
               <div class="polaroid-frame">
                 <div class="polaroid-img-wrapper">
                   <img
-                    src="image/Background/Polaroid.webp"
+                    src="image/Background/polaroid.webp"
                     alt="Agra & Anggun"
                   />
                 </div>
@@ -1928,11 +1933,12 @@
 
           <!-- SLIDE 10: PESAN ROMANTIS (Artist Thank You Note Style) -->
           <div
-            class="story-slide"
+            class="story-slide agra-message-slide"
             data-bg="#26040d"
             data-orb1="#ff4632"
             data-orb2="#f037a5"
             data-orb3="#8c1eff"
+            data-track="music/janjisuci.mp3"
           >
             <div class="slide-meta-header">
               <span class="wrapped-category-tag">A MESSAGE FROM AGRA</span>
@@ -1975,6 +1981,7 @@
             data-orb1="#f037a5"
             data-orb2="#ff4632"
             data-orb3="#8c1eff"
+            data-track="music/janjisuci.mp3"
           >
             <div class="slide-meta-header">
               <span class="wrapped-category-tag">A MESSAGE FROM ANGGUN</span>
@@ -2024,6 +2031,7 @@
             data-orb1="#1DB954"
             data-orb2="#f037a5"
             data-orb3="#cdf564"
+            data-track="music/janjisuci.mp3"
           >
             <div class="slide-meta-header" style="text-align: center">
               <span class="wrapped-category-tag">UPCOMING RELEASE</span>
@@ -2090,6 +2098,63 @@
        JAVASCRIPT LOGIC LENGKAP
   ========================================================= -->
     <script>
+      // =========================================================
+      // PERFORMANCE PRELOADER: 13 FOTO AWAL + SEMUA BACKGROUND
+      // =========================================================
+      const initialLoadingPhotoUrls = Array.from({ length: 13 }, (_, index) => {
+        const month = new Date(2025, 9 + index, 1);
+        const monthFolder = `${month.getFullYear()}-${String(
+          month.getMonth() + 1,
+        ).padStart(2, "0")}`;
+        return `image/time_machine/${monthFolder}/photo_1.webp`;
+      });
+
+      const backgroundPhotoUrls = [
+        "image/Background/first.webp",
+        "image/Background/polaroid.webp",
+        "image/Background/photo_1.webp",
+        "image/Background/photo_2.webp",
+        "image/Background/photo_3.webp",
+        "image/Background/photo_4.webp",
+        "image/Background/photo_5.webp",
+        "image/Background/photo_6.webp",
+        "image/Background/photo_7.webp",
+      ];
+
+      const preloadedImageCache = new Map();
+      function preloadAsset(url) {
+        if (!url || preloadedImageCache.has(url)) return;
+        const img = new Image();
+        img.decoding = "async";
+        img.src = url;
+        if ("decode" in img) {
+          img.decode().catch(() => {});
+        }
+        preloadedImageCache.set(url, img);
+      }
+
+      // Preload secepat mungkin di background saat halaman dibuka
+      [...backgroundPhotoUrls, ...initialLoadingPhotoUrls].forEach(preloadAsset);
+
+      // Preload foto leaderboard selanjutnya secara background idle
+      const secondaryAssetUrls = [
+        "image/top/Tempat/1.%20Jamtos.jpg",
+        "image/top/Tempat/2.%20Depati%20Coffe.jpg",
+        "image/top/Tempat/3.%20Mie%20Yamin%20sipin.jpg",
+        "image/top/Kegiatan/1.%20Hunting%20Jajan.jpg",
+        "image/top/Kegiatan/2.%20Keliling%20Jambi.jpg",
+        "image/top/Kegiatan/3.%20Callllllll.jpg",
+        "image/top/Makanan/1.%20Sushi.jpg",
+        "image/top/Makanan/2.%20Seblak%20Lens.jpg",
+        "image/top/Makanan/3.%20Cake.jpg",
+        "spotify.png",
+      ];
+      if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+        requestIdleCallback(() => secondaryAssetUrls.forEach(preloadAsset));
+      } else {
+        setTimeout(() => secondaryAssetUrls.forEach(preloadAsset), 1000);
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         const supabaseUrl = "https://mrxgibdheuemswtpytxe.supabase.co";
         const supabasePublishableKey =
@@ -2227,7 +2292,7 @@
         });
 
         // ---------------------------------------------------------
-        // AUDIO SYSTEM (BGM DENGAN FADE IN HALUS)
+        // AUDIO SYSTEM (BGM DENGAN FADE IN HALUS & POSISI LAGU TERSIMPAN)
         // ---------------------------------------------------------
         const bgmAudio = document.getElementById("bgm-audio");
         const audioToggle = document.getElementById("audioToggle");
@@ -2237,6 +2302,18 @@
         let isAudioPlaying = false;
         let audioTargetVolume = 0.65;
         let audioFadeInterval = null;
+        let currentTrack = bgmAudio.getAttribute("src") || "music/favorite.mp3";
+        let trackSwitchToken = 0;
+        const trackPlayheads = {
+          "music/favorite.mp3": 0,
+          "music/janjisuci.mp3": 0,
+        };
+
+        bgmAudio.addEventListener("timeupdate", () => {
+          if (currentTrack && Number.isFinite(bgmAudio.currentTime) && bgmAudio.currentTime > 0) {
+            trackPlayheads[currentTrack] = bgmAudio.currentTime;
+          }
+        });
 
         function fadeAudioTo(targetVolume, duration, onComplete) {
           if (audioFadeInterval !== null) {
@@ -2246,14 +2323,14 @@
           const startVolume = bgmAudio.volume;
           const startTime = performance.now();
           audioFadeInterval = setInterval(() => {
-            const progress = Math.min(
-              (performance.now() - startTime) / duration,
+            const elapsed = performance.now() - startTime;
+            const progress = duration > 0 ? Math.min(elapsed / duration, 1) : 1;
+            bgmAudio.volume = Math.min(
               1,
+              Math.max(0, startVolume + (targetVolume - startVolume) * progress),
             );
-            bgmAudio.volume =
-              startVolume + (targetVolume - startVolume) * progress;
 
-            if (progress === 1) {
+            if (progress >= 1) {
               clearInterval(audioFadeInterval);
               audioFadeInterval = null;
               onComplete?.();
@@ -2263,12 +2340,17 @@
 
         function saveAudioState() {
           try {
+            if (currentTrack && Number.isFinite(bgmAudio.currentTime) && bgmAudio.currentTime > 0) {
+              trackPlayheads[currentTrack] = bgmAudio.currentTime;
+            }
             sessionStorage.setItem(
               audioStateKey,
               JSON.stringify({
                 currentTime: bgmAudio.currentTime,
                 isPlaying: !bgmAudio.paused,
                 volume: audioTargetVolume,
+                track: currentTrack,
+                trackPlayheads: trackPlayheads,
               }),
             );
           } catch (error) {
@@ -2276,6 +2358,70 @@
               "Unable to save background music playback state:",
               error,
             );
+          }
+        }
+
+        function switchTrack(targetTrack) {
+          if (!targetTrack || currentTrack === targetTrack) return;
+          const currentToken = ++trackSwitchToken;
+
+          // Simpan posisi playback lagu saat ini sebelum beralih
+          if (Number.isFinite(bgmAudio.currentTime) && bgmAudio.currentTime > 0) {
+            trackPlayheads[currentTrack] = bgmAudio.currentTime;
+          }
+
+          // Cek apakah audio sedang aktif / harus lanjut berputar sebelum src diubah
+          const shouldPlay = isAudioPlaying || !bgmAudio.paused;
+
+          currentTrack = targetTrack;
+          const resumeTime = trackPlayheads[targetTrack] || 0;
+
+          bgmAudio.loop = true;
+          bgmAudio.src = targetTrack;
+
+          const seekToResumeTime = () => {
+            if (resumeTime > 0) {
+              try {
+                if (bgmAudio.duration && resumeTime < bgmAudio.duration) {
+                  bgmAudio.currentTime = resumeTime;
+                }
+              } catch (err) {
+                console.warn("Unable to seek audio:", err);
+              }
+            }
+          };
+
+          if (bgmAudio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+            seekToResumeTime();
+          } else {
+            bgmAudio.addEventListener("loadedmetadata", seekToResumeTime, {
+              once: true,
+            });
+          }
+
+          if (shouldPlay) {
+            bgmAudio.volume = 0.08;
+            isAudioPlaying = true;
+            musicWaves.classList.remove("paused");
+            audioStatusText.textContent = "BGM";
+            saveAudioState();
+            const playPromise = bgmAudio.play();
+            if (playPromise !== undefined) {
+              playPromise
+                .then(() => {
+                  if (currentToken !== trackSwitchToken) return;
+                  isAudioPlaying = true;
+                  musicWaves.classList.remove("paused");
+                  audioStatusText.textContent = "BGM";
+                  fadeAudioTo(audioTargetVolume, 600, saveAudioState);
+                })
+                .catch((error) => {
+                  console.warn("Unable to play switched audio track:", error);
+                });
+            }
+          } else {
+            bgmAudio.pause();
+            saveAudioState();
           }
         }
 
@@ -2294,14 +2440,27 @@
           }
           if (!savedState?.isPlaying) return;
 
+          if (savedState.trackPlayheads) {
+            Object.assign(trackPlayheads, savedState.trackPlayheads);
+          }
+
+          if (savedState.track && savedState.track !== currentTrack) {
+            currentTrack = savedState.track;
+            bgmAudio.src = savedState.track;
+          }
+
           const resume = () => {
-            if (Number.isFinite(savedState.currentTime)) {
-              bgmAudio.currentTime = savedState.currentTime;
+            const resumePos = Number.isFinite(savedState.currentTime)
+              ? savedState.currentTime
+              : trackPlayheads[currentTrack] || 0;
+            if (resumePos > 0) {
+              bgmAudio.currentTime = resumePos;
             }
             audioTargetVolume = Number.isFinite(savedState.volume)
               ? savedState.volume
               : 0.65;
-            bgmAudio.volume = 0.01;
+            bgmAudio.volume = 0.05;
+            bgmAudio.loop = true;
             bgmAudio
               .play()
               .then(() => {
@@ -2326,6 +2485,7 @@
 
         function playBgmSmoothly() {
           bgmAudio.volume = 0.05;
+          bgmAudio.loop = true;
           audioTargetVolume = 0.65;
           const playPromise = bgmAudio.play();
           if (playPromise !== undefined) {
@@ -2333,7 +2493,7 @@
               .then(() => {
                 isAudioPlaying = true;
                 musicWaves.classList.remove("paused");
-                audioStatusText.textContent = "Music";
+                audioStatusText.textContent = "BGM";
                 saveAudioState();
                 fadeAudioTo(audioTargetVolume, 1200, saveAudioState);
               })
@@ -2345,6 +2505,9 @@
 
         function toggleAudio() {
           if (bgmAudio.paused) {
+            if (bgmAudio.volume < 0.1) {
+              bgmAudio.volume = audioTargetVolume;
+            }
             bgmAudio
               .play()
               .then(() => {
@@ -2375,22 +2538,37 @@
             number: "VERIFIKASI HUBUNGAN #1",
             question: "Siapa yang paling sering ngambek di hubungan kita?",
             options: [
-              { text: "Andun", isCorrect: true },
-              { text: "Ndaa", isCorrect: false },
-              { text: "Kita berdua", isCorrect: false },
+              { text: "Andun", isCorrect: true, feedback: null },
+              {
+                text: "Ndaa",
+                isCorrect: false,
+                feedback: "Masih gengsi aja ngakuin sering ngambek wkwk",
+              },
+              {
+                text: "Kita berdua",
+                isCorrect: false,
+                feedback: "Masih gengsi aja ngakuin sering ngambek wkwk",
+              },
             ],
-            wrongFeedback: "Masih gengsi aja ngakuin sering ngambek wkwk",
           },
           {
             number: "VERIFIKASI HUBUNGAN #2",
             question: "Udah berapa lama nih kita bareng-bareng?",
             options: [
-              { text: "Baru kemaren", isCorrect: false },
-              { text: "Udah 1 Tahun dong!", isCorrect: true },
-              { text: "Lupa", isCorrect: false },
+              {
+                text: "Baru kemaren",
+                isCorrect: false,
+                feedback:
+                  "Masa kemaren kan hampir nangis gadiijin pergi mak ayah wkwk",
+              },
+              { text: "Udah 1 Tahun dong!", isCorrect: true, feedback: null },
+              {
+                text: "Lupa",
+                isCorrect: false,
+                feedback:
+                  "Awas kalau lupa beneran ya! Coba pilih yang bener wkwk",
+              },
             ],
-            wrongFeedback:
-              "masa kemaren kan hampir nangis gadiijin pergi mak ayah wkwk",
           },
         ];
 
@@ -2422,16 +2600,16 @@
             btn.className = "quiz-btn";
             btn.innerHTML = `<span>${opt.text}</span><span>➔</span>`;
             btn.addEventListener("click", () =>
-              handleQuizOptionClick(btn, opt.isCorrect, qData.wrongFeedback),
+              handleQuizOptionClick(btn, opt),
             );
             quizOptionsContainer.appendChild(btn);
           });
         }
 
-        function handleQuizOptionClick(buttonEl, isCorrect, feedbackMsg) {
+        function handleQuizOptionClick(buttonEl, optionData) {
           if (quizAnswerLocked) return;
 
-          if (isCorrect) {
+          if (optionData.isCorrect) {
             quizAnswerLocked = true;
             buttonEl.classList.add("correct");
 
@@ -2457,7 +2635,8 @@
             }, 800);
           } else {
             buttonEl.classList.add("wrong");
-            quizFeedback.textContent = feedbackMsg;
+            quizFeedback.textContent =
+              optionData.feedback || "Waduh, belum pas nih hehe";
             quizFeedback.classList.add("visible");
 
             setTimeout(() => {
@@ -2483,11 +2662,8 @@
           document.getElementById("spotifyStoryHeader");
 
         function showLoadingPhotos() {
-          Array.from({ length: 13 }, (_, index) => {
-            const month = new Date(2025, 9 + index, 1);
-            const monthFolder = `${month.getFullYear()}-${String(
-              month.getMonth() + 1,
-            ).padStart(2, "0")}`;
+          loadingPhotoCluster.innerHTML = "";
+          initialLoadingPhotoUrls.forEach((photoUrl, index) => {
             const photo = document.createElement("img");
             const angle = (index * 137.5 * Math.PI) / 180;
             const startRadius = 48 + (index % 4) * 12;
@@ -2496,7 +2672,9 @@
             const endRotation = ((index % 7) - 3) * 4;
 
             photo.className = "loading-photo";
-            photo.src = `image/time_machine/${monthFolder}/photo_1.webp`;
+            photo.loading = "eager";
+            photo.decoding = "async";
+            photo.src = photoUrl;
             photo.alt = "";
             photo.style.setProperty(
               "--start-x",
@@ -2618,6 +2796,9 @@
           currentSlideIdx = newIdx;
           const activeSlide = slides[currentSlideIdx];
           activeSlide.classList.add("active");
+
+          const targetTrack = activeSlide.dataset.track || "music/favorite.mp3";
+          switchTrack(targetTrack);
           monthGrid.querySelectorAll(".month-tile").forEach((monthLink) => {
             monthLink.href = `time-machine.html?month=${monthLink.dataset.monthIndex}&returnSlide=${currentSlideIdx}&music=1`;
           });
@@ -2810,6 +2991,8 @@
 
         document.getElementById("replayBtn").addEventListener("click", (e) => {
           e.stopPropagation();
+          trackPlayheads["music/favorite.mp3"] = 0;
+          trackPlayheads["music/janjisuci.mp3"] = 0;
           updateSlide(0);
         });
 
